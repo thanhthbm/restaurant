@@ -1,9 +1,12 @@
 package com.thanhthbm.restaurant.service;
 
 import com.thanhthbm.restaurant.domain.User;
+import com.thanhthbm.restaurant.domain.response.ResCreateUserDTO;
 import com.thanhthbm.restaurant.domain.response.ResultPaginationDTO;
 import com.thanhthbm.restaurant.repository.UserRepository;
+import com.thanhthbm.restaurant.util.exception.ResourceAlreadyExistsException;
 import com.thanhthbm.restaurant.util.exception.ResourceNotFoundException;
+import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -49,5 +52,29 @@ public class UserService {
             user.setRefreshToken(token);
             this.userRepository.save(user);
         }
+    }
+
+    public ResCreateUserDTO convertToResCreateUserDTO(User user) {
+        ResCreateUserDTO resCreateUserDTO = new ResCreateUserDTO();
+        resCreateUserDTO.setId(user.getId());
+        resCreateUserDTO.setUsername(user.getUsername());
+        resCreateUserDTO.setEmail(user.getEmail());
+        resCreateUserDTO.setName(user.getName());
+        resCreateUserDTO.setGender(user.getGender());
+        resCreateUserDTO.setAddress(user.getAddress());
+        resCreateUserDTO.setCreatedAt(user.getCreatedAt());
+        return resCreateUserDTO;
+
+    }
+
+    public User handleCreateUser(User reqUser) {
+        if (this.userRepository.existsByUsername(reqUser.getUsername())) {
+            throw new ResourceAlreadyExistsException("Username already exists");
+        }
+        if (this.userRepository.existsByEmail(reqUser.getEmail())) {
+            throw new ResourceAlreadyExistsException("Email already exists");
+        }
+
+        return this.userRepository.save(reqUser);
     }
 }

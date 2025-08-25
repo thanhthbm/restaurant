@@ -2,6 +2,7 @@ package com.thanhthbm.restaurant.controller;
 
 import com.thanhthbm.restaurant.domain.User;
 import com.thanhthbm.restaurant.domain.request.ReqLoginDTO;
+import com.thanhthbm.restaurant.domain.response.ResCreateUserDTO;
 import com.thanhthbm.restaurant.domain.response.ResLoginDTO;
 import com.thanhthbm.restaurant.service.UserService;
 import com.thanhthbm.restaurant.util.SecurityUtil;
@@ -10,6 +11,7 @@ import com.thanhthbm.restaurant.util.exception.IdInvalidException;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -40,7 +42,7 @@ public class AuthController {
         this.securityUtil = securityUtil;
     }
 
-    @PostMapping("/")
+    @PostMapping("/auth/login")
     public ResponseEntity<ResLoginDTO> login(@Valid @RequestBody ReqLoginDTO loginDTO){
 
         //load username/password into Security
@@ -67,6 +69,8 @@ public class AuthController {
                     currentUserInDB.getEmail(),
                     currentUserInDB.getRole()
             );
+
+            res.setUser(userLogin);
         }
 
         //create accessToken
@@ -78,6 +82,8 @@ public class AuthController {
 
         //update user
         this.userService.updateUserToken(refresh_token, loginDTO.getUsername());
+
+        res.setAccessToken(access_token);
 
         //set cookies
         ResponseCookie resCookies = ResponseCookie
@@ -117,6 +123,17 @@ public class AuthController {
         return ResponseEntity.ok()
                 .header(HttpHeaders.SET_COOKIE, deleteSpringCookie.toString())
                 .body(null);
+    }
+
+    @PostMapping("/auth/register")
+    @ApiMessage("Register a new user")
+    public ResponseEntity<ResCreateUserDTO> register(@Valid @RequestBody User reqUser) throws IdInvalidException {
+
+
+        String hashPassword = this.passwordEncoder.encode(reqUser.getPassword());
+        reqUser.setPassword(hashPassword);
+        User user = this.userService.handleCreateUser(reqUser);
+        return ResponseEntity.status(HttpStatus.CREATED).body(this.userService.convertToResCreateUserDTO(user));
     }
 
 }

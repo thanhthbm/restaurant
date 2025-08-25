@@ -1,5 +1,7 @@
 package com.thanhthbm.restaurant.domain;
 
+import com.thanhthbm.restaurant.util.SecurityUtil;
+import com.thanhthbm.restaurant.util.constant.Gender;
 import jakarta.persistence.*;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotBlank;
@@ -34,12 +36,37 @@ public class User {
     @JoinColumn(name = "role_id")
     private Role role;
 
+    @Enumerated(EnumType.STRING)
+    private Gender gender;
+    private String address;
+
+
     private Instant createdAt;
     private String createdBy;
     private Instant updatedAt;
     private String updatedBy;
     private boolean active;
 
+    @Column(columnDefinition = "MEDIUMTEXT")
     private String refreshToken;
+
+    @PrePersist
+    public void handleBeforeCreate() {
+        this.createdBy = SecurityUtil.getCurrentUserLogin().isPresent() == true
+                ? SecurityUtil.getCurrentUserLogin().get()
+                : "";
+
+        this.createdAt = Instant.now();
+    }
+
+    @PreUpdate
+    public void handleBeforeUpdate() {
+        this.updatedBy = SecurityUtil.getCurrentUserLogin().isPresent() == true
+                ? SecurityUtil.getCurrentUserLogin().get()
+                : "";
+
+        this.updatedAt = Instant.now();
+    }
+
 
 }
