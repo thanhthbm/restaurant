@@ -37,6 +37,29 @@ public class MenuService {
     }
 
     /* ======================= DISH ======================= */
+    public Dish getDish(Long id) {
+        Optional<Dish> dishOptional = this.dishRepository.findById(id);
+        if (!dishOptional.isPresent()) {
+            throw new ResourceNotFoundException("Dish not found");
+        }
+        return dishOptional.get();
+    }
+
+    public ResultPaginationDTO getAllDishes(Specification<Dish> specification, Pageable pageable) {
+        ResultPaginationDTO resultPaginationDTO = new ResultPaginationDTO();
+        ResultPaginationDTO.Meta meta = new ResultPaginationDTO.Meta();
+
+        Page<Dish> dishPage = this.dishRepository.findAll(specification, pageable);
+        meta.setPage(pageable.getPageNumber() + 1);
+        meta.setSize(pageable.getPageSize());
+        meta.setTotal(dishPage.getTotalElements());
+        meta.setPages(dishPage.getTotalPages());
+
+        resultPaginationDTO.setMeta(meta);
+        resultPaginationDTO.setResult(dishPage.getContent());
+        return resultPaginationDTO;
+    }
+
     public Dish createDish(Dish dish) {
         return dishRepository.save(dish);
     }
@@ -49,41 +72,61 @@ public class MenuService {
         return dishRepository.save(dish);
     }
 
-    public void deleteDish(Long id) {
-        if (!dishRepository.existsById(id)) {
-            throw new ResourceNotFoundException("Dish with id " + id + " not found");
-        }
-        dishRepository.deleteById(id);
-    }
 
-    /* ======================= COMBO ======================= */
-//    public Combo createCombo(Combo combo) {
-//        // Nếu client không set priceMode -> mặc định SUM
-//        if (combo.getPriceMode() == null) {
-//            combo.setPriceMode(PriceMode.SUM);
+
+//    public void deleteDish(Long id) {
+//        if (!dishRepository.existsById(id)) {
+//            throw new ResourceNotFoundException("Dish with id " + id + " not found");
 //        }
-//
-//        if (combo.getPriceMode() == PriceMode.FIXED) {
-//            // FIXED thì phải có price
-//            if (combo.getPrice() == null) {
-//                throw new IllegalArgumentException("Combo price must be set when FIXED");
-//            }
-//        } else { // SUM
-//            // Tính giá theo dish * quantity
-//            BigDecimal total = combo.getItems().stream()
-//                    .map(it -> it.getDish().getPrice().multiply(BigDecimal.valueOf(it.getQuantity())))
-//                    .reduce(BigDecimal.ZERO, BigDecimal::add);
-//            combo.setPrice(total);
-//        }
-//
-//        // Gắn combo cho từng item (tránh null FK)
-//        combo.getItems().forEach(it -> it.setCombo(combo));
-//
-//        return comboRepository.save(combo);
+//        dishRepository.deleteById(id);
 //    }
 
 
+
+    /* ======================= COMBO ======================= */
     public Combo createCombo(ReqCreateComboDTO dto) {
+        return comboRepository.save(convertCreateComboDTO(dto));
+    }
+
+
+    public Combo getCombo(Long id) {
+        Optional<Combo> comboOptional = this.comboRepository.findById(id);
+        if (!comboOptional.isPresent()) {
+            throw new ResourceNotFoundException("Combo with id " + id + " not found");
+        }
+        return comboOptional.get();
+    }
+
+    public ResultPaginationDTO getAllCombos(Specification<Combo> specification,  Pageable pageable) {
+        ResultPaginationDTO resultPaginationDTO = new ResultPaginationDTO();
+        ResultPaginationDTO.Meta meta = new ResultPaginationDTO.Meta();
+
+        Page<Combo> comboPage = this.comboRepository.findAll(specification, pageable);
+        meta.setPage(pageable.getPageNumber() + 1);
+        meta.setSize(pageable.getPageSize());
+        meta.setTotal(comboPage.getTotalElements());
+        meta.setPages(comboPage.getTotalPages());
+
+        resultPaginationDTO.setMeta(meta);
+        resultPaginationDTO.setResult(comboPage.getContent());
+        return resultPaginationDTO;
+    }
+
+    public void deleteCombo(Long id) {
+        if (!comboRepository.existsById(id)) {
+            throw new ResourceNotFoundException("Combo with id " + id + " not found");
+        }
+        this.comboRepository.deleteById(id);
+    }
+
+    public Combo updateCombo(Long id, ReqCreateComboDTO dto) {
+        if (!comboRepository.existsById(id)) {
+            throw  new ResourceNotFoundException("Combo with id " + id + " not found");
+        }
+        return comboRepository.save(convertCreateComboDTO(dto));
+    }
+
+    public Combo convertCreateComboDTO(ReqCreateComboDTO dto) {
         if (dto.getPriceMode() == null) {
             dto.setPriceMode(PriceMode.SUM); // default
         }
@@ -104,6 +147,7 @@ public class MenuService {
             ComboItem comboItem = new ComboItem();
             comboItem.setDish(dish);
             comboItem.setQuantity(dc.getQuantity());
+            comboItem.setPrice(dish.getPrice());
 
             combo.addItem(comboItem);
 
@@ -118,8 +162,9 @@ public class MenuService {
         } else {
             combo.setPrice(total);
         }
-        return comboRepository.save(combo);
+        return combo;
     }
+
 
 
     //get all menu items
@@ -138,7 +183,6 @@ public class MenuService {
         dto.setResult(items.getContent());
         return dto;
     }
-
 
 
 }

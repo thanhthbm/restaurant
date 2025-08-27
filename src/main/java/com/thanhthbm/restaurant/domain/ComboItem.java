@@ -7,6 +7,8 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
+import java.math.BigDecimal;
+
 @Entity
 @Table(
         name = "combo_items",
@@ -26,11 +28,14 @@ public class ComboItem {
     @JoinColumn(name = "combo_id")
     private Combo combo;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @ManyToOne(fetch = FetchType.EAGER, optional = false)
     @JoinColumn(name = "dish_id")
     private Dish dish;
 
     @Column(nullable = false)
     @NotNull(message = "quantity must not be null")
     private int quantity;
+
+    @NotNull
+    private BigDecimal price;
 }
