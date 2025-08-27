@@ -1,5 +1,6 @@
 package com.thanhthbm.restaurant.domain;
 
+import com.thanhthbm.restaurant.util.SecurityUtil;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -13,7 +14,7 @@ import java.util.List;
 @NoArgsConstructor
 @Builder
 @jakarta.persistence.Table(name = "restaurants")
-public class Restaurant {
+public class Restaurant extends Auditable{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -30,11 +31,6 @@ public class Restaurant {
     private List<Table> tables;
 
     private double rating;
+    private boolean active = true;
 
-    private Instant createdAt;
-    private Instant updatedAt;
-
-    private String createdBy;
-    private String updatedBy;
-    private boolean active;
 }
