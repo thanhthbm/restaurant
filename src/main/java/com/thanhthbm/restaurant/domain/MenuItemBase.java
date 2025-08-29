@@ -28,6 +28,8 @@ public abstract class MenuItemBase extends Auditable{
     private String name;
     private String category;
 
+    private String imageUrl;
+
     @Column(columnDefinition = "MEDIUMTEXT")
     private String description;
 

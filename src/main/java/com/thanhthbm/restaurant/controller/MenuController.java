@@ -5,6 +5,7 @@ import com.thanhthbm.restaurant.domain.Dish;
 import com.thanhthbm.restaurant.domain.MenuItemBase;
 import com.thanhthbm.restaurant.domain.request.ReqCreateComboDTO;
 import com.thanhthbm.restaurant.domain.response.ResultPaginationDTO;
+import com.thanhthbm.restaurant.service.CloudinaryService;
 import com.thanhthbm.restaurant.service.MenuService;
 import com.thanhthbm.restaurant.util.annotation.ApiMessage;
 import com.turkraft.springfilter.boot.Filter;
@@ -14,14 +15,17 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequestMapping("/api/v1")
 public class MenuController {
     private final MenuService menuService;
+    private final CloudinaryService cloudinaryService;
 
-    public MenuController(MenuService menuService) {
+    public MenuController(MenuService menuService,  CloudinaryService cloudinaryService) {
         this.menuService = menuService;
+        this.cloudinaryService = cloudinaryService;
     }
 
     @GetMapping("/menu")
@@ -32,7 +36,11 @@ public class MenuController {
 
     @PostMapping("/menu/dishes")
     @ApiMessage("Add a new dish")
-    public ResponseEntity<Dish> addDish(@Valid @RequestBody Dish dish) {
+    public ResponseEntity<Dish> addDish(
+            @Valid
+            @RequestBody Dish dish
+            ) {
+
         return ResponseEntity.status(HttpStatus.OK).body(this.menuService.createDish(dish));
     }
 

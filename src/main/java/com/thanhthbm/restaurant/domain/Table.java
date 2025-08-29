@@ -3,6 +3,7 @@ package com.thanhthbm.restaurant.domain;
 import com.thanhthbm.restaurant.util.SecurityUtil;
 import com.thanhthbm.restaurant.util.constant.TableStatus;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 
 import java.time.Instant;
@@ -18,6 +19,8 @@ public class Table extends Auditable{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
+
+    @NotBlank(message = "table name must not be blank")
     private String name;
     private int capacity;
     private String qrCode;
@@ -25,9 +28,6 @@ public class Table extends Auditable{
     @Enumerated(EnumType.STRING)
     private TableStatus status;
 
-    @ManyToOne
-    @JoinColumn(name = "restaurant_id")
-    private Restaurant restaurant;
 
 
     private boolean active = true;
