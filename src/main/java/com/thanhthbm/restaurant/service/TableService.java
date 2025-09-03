@@ -4,6 +4,7 @@ package com.thanhthbm.restaurant.service;
 import com.thanhthbm.restaurant.domain.Table;
 import com.thanhthbm.restaurant.domain.response.ResultPaginationDTO;
 import com.thanhthbm.restaurant.repository.TableRepository;
+import com.thanhthbm.restaurant.util.constant.TableStatus;
 import com.thanhthbm.restaurant.util.exception.ResourceAlreadyExistsException;
 import com.thanhthbm.restaurant.util.exception.ResourceNotFoundException;
 import org.springframework.data.domain.Page;
@@ -11,6 +12,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -74,7 +76,14 @@ public class TableService {
         this.tableRepository.deleteById(id);
     }
 
-
+    public void updateTableStatus(Table table, TableStatus tableStatus) {
+        if (!this.tableRepository.existsById(table.getId())) {
+            throw new ResourceNotFoundException("Table not found");
+        }
+        Table currentTable = this.tableRepository.findById(table.getId()).get();
+        currentTable.setStatus(tableStatus);
+        this.tableRepository.save(currentTable);
+    }
 
 
 }

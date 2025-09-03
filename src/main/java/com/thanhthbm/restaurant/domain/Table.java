@@ -1,5 +1,6 @@
 package com.thanhthbm.restaurant.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.thanhthbm.restaurant.util.SecurityUtil;
 import com.thanhthbm.restaurant.util.constant.TableStatus;
 import jakarta.persistence.*;
@@ -7,6 +8,7 @@ import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 
 import java.time.Instant;
+import java.util.List;
 
 @Entity
 @Getter
@@ -28,7 +30,9 @@ public class Table extends Auditable{
     @Enumerated(EnumType.STRING)
     private TableStatus status;
 
-
+    @ManyToMany(fetch = FetchType.LAZY, mappedBy = "tables")
+    @JsonIgnore
+    private List<Order> orders;
 
     private boolean active = true;
 

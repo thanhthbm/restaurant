@@ -184,5 +184,15 @@ public class MenuService {
         return dto;
     }
 
+    public BigDecimal getCurrentPrice(MenuItemBase item) {
+        if (item instanceof Combo c) {
+            return c.getPrice();
+        } else if (item instanceof Dish d) {
+            return d.getPrice();
+        }
+        else{
+            throw new IllegalArgumentException("Invalid item type");
+        }
+    }
 
 }
