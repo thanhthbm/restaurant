@@ -5,9 +5,11 @@ import com.thanhthbm.restaurant.domain.Order;
 import com.thanhthbm.restaurant.domain.OrderItem;
 import com.thanhthbm.restaurant.domain.Table;
 import com.thanhthbm.restaurant.domain.request.ReqCreateOrderDTO;
+import com.thanhthbm.restaurant.domain.response.ResCreateOrderDTO;
 import com.thanhthbm.restaurant.repository.MenuItemBaseRepository;
 import com.thanhthbm.restaurant.repository.OrderRepository;
 import com.thanhthbm.restaurant.repository.TableRepository;
+import com.thanhthbm.restaurant.service.mapper.OrderMapper;
 import com.thanhthbm.restaurant.util.constant.OrderStatus;
 import com.thanhthbm.restaurant.util.constant.OrderType;
 import com.thanhthbm.restaurant.util.constant.TableStatus;
@@ -47,7 +49,7 @@ public class OrderService {
     }
 
     @Transactional
-    public Order createOrder(ReqCreateOrderDTO req) {
+    public ResCreateOrderDTO createOrder(ReqCreateOrderDTO req) {
         if (req.getItems() == null || req.getItems().isEmpty()) {
             throw new IllegalArgumentException("Order must contain at least 1 item");
         }
@@ -112,7 +114,7 @@ public class OrderService {
         order.setNote(req.getNote());
 
         // ---- Lưu 1 lần ----
-        return orderRepository.save(order);
+        return OrderMapper.mapOrderToDTO(orderRepository.save(order));
     }
 
 
